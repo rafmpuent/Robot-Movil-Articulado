@@ -4,6 +4,8 @@ Ambiente: Arduino IDE
 
 Lenguaje: C++  
 
-Version de Espressif 2.0.16  
+Placa Espressif Systems ESP32 V2.0.16 
 
-Librerias utilizadas: DabbleESP32 y ESP32Servo
+Librerias utilizadas:   
+* DabbleESP32 V1.5.1
+* ESP32Servo V0.11
