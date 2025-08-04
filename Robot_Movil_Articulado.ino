@@ -5,12 +5,10 @@
 #include <DabbleESP32.h>
 
 //Right motor
-int enableRightMotor=32; 
 int rightMotorPin1=33;
 int rightMotorPin2=25;
 
 //Left motor
-int enableLeftMotor=26;
 int leftMotorPin1=27;
 int leftMotorPin2=14;
 
@@ -30,12 +28,10 @@ int servoBasePin = 14;
 int minUs = 500;
 int maxUs = 2500;
 
-#define MAX_MOTOR_SPEED 255
-
-const int PWMFreq = 5000; /* 5 KHz */
-const int PWMResolution = 8;
-const int rightMotorPWMSpeedChannel = 4;
-const int leftMotorPWMSpeedChannel = 5;
+bool flagSelection = false;
+int rotation = 90;
+int positionE = 90;
+int reader = 0;
 
 void rotateMotor(int rightMotorSpeed, int leftMotorSpeed)
 {
@@ -70,13 +66,10 @@ void rotateMotor(int rightMotorSpeed, int leftMotorSpeed)
     digitalWrite(leftMotorPin1,LOW);
     digitalWrite(leftMotorPin2,LOW);      
   }
-  
-  ledcWrite(rightMotorPWMSpeedChannel, abs(rightMotorSpeed));
-  ledcWrite(leftMotorPWMSpeedChannel, abs(leftMotorSpeed));  
 }
 
 void moveArm(int positions){
-  int oldValue, newValue, reader;
+  int oldValue, newValue;
   oldValue = servoE1.read();
   reader = servoE2.read();
 
@@ -97,23 +90,13 @@ void rotationArm(int angle){
 
 void setUpPinModes()
 {
-  pinMode(enableRightMotor,OUTPUT);
   pinMode(rightMotorPin1,OUTPUT);
   pinMode(rightMotorPin2,OUTPUT);
   
-  pinMode(enableLeftMotor,OUTPUT);
   pinMode(leftMotorPin1,OUTPUT);
   pinMode(leftMotorPin2,OUTPUT);
 
-  //Set up PWM for speed
-  ledcSetup(rightMotorPWMSpeedChannel, PWMFreq, PWMResolution);
-  ledcSetup(leftMotorPWMSpeedChannel, PWMFreq, PWMResolution);  
-  ledcAttachPin(enableRightMotor, rightMotorPWMSpeedChannel);
-  ledcAttachPin(enableLeftMotor, leftMotorPWMSpeedChannel); 
-
   rotateMotor(0,0);
-
-  Serial.begin(115200);
 
   servoEE.setPeriodHertz(50);
   servoE2.setPeriodHertz(50);
@@ -124,16 +107,12 @@ void setUpPinModes()
   servoE2.attach(servoE2Pin, minUs, maxUs);
   servoE1.attach(servoE1Pin, minUs, maxUs);
   servoBase.attach(servoBasePin, minUs, maxUs);
-  
-  bool flagSelection = false;
-  int rotation = 90;
-  int position = 90
 
   //Position Initial
   servoEE.write(0);
   servoE2.write(0);
   servoE1.write(90);
-  seroBase.write(rotation);
+  servoBase.write(90);
 }
 
 void setup()
@@ -146,29 +125,31 @@ void loop()
 {
   int rightMotorSpeed=0;
   int leftMotorSpeed=0;
+
   Dabble.processInput();
+
   if (GamePad.isUpPressed())
   {
-    rightMotorSpeed = -MAX_MOTOR_SPEED;
-    leftMotorSpeed = MAX_MOTOR_SPEED;
+    rightMotorSpeed = -1;
+    leftMotorSpeed = 1;
   }
 
   if (GamePad.isDownPressed())
   {
-    rightMotorSpeed = MAX_MOTOR_SPEED;
-    leftMotorSpeed = -MAX_MOTOR_SPEED;
+    rightMotorSpeed = 1;
+    leftMotorSpeed = -1;
   }
 
   if (GamePad.isLeftPressed())
   {
-    rightMotorSpeed = MAX_MOTOR_SPEED;
-    leftMotorSpeed = MAX_MOTOR_SPEED;
+    rightMotorSpeed = 1;
+    leftMotorSpeed = 1;
   }
 
   if (GamePad.isRightPressed())
   {
-    rightMotorSpeed = -MAX_MOTOR_SPEED;
-    leftMotorSpeed = -MAX_MOTOR_SPEED;
+    rightMotorSpeed = -1;
+    leftMotorSpeed = -1;
   }
 
   rotateMotor(rightMotorSpeed, leftMotorSpeed);
